@@ -17,7 +17,7 @@
   const DEFAULT_SETTINGS = {
     appName: 'ShiftPulse',
     targetHours: 176,
-    weekStart: 1, // 1=Mon, 0=Sun
+    weekStart: 1,
     timeFormat: 24,
     theme: 'system',
   };
@@ -156,23 +156,16 @@
   }[c]));
 
   // ---------- SHIFT LOGIC ----------
-  /**
-   * Calculate duration in minutes for a shift.
-   * Handles overnight shifts: if end <= start, adds 24h.
-   * Subtracts break. Never returns negative.
-   */
   const calcShiftDuration = (startTime, endTime, breakMinutes = 0) => {
     const s = toMinutes(startTime);
     const e = toMinutes(endTime);
     if (Number.isNaN(s) || Number.isNaN(e)) return 0;
     let diff = e - s;
-    if (diff <= 0) diff += 24 * 60; // overnight shift
+    if (diff <= 0) diff += 24 * 60;
     diff -= Math.max(0, breakMinutes || 0);
     if (diff < 0) diff = 0;
     return diff;
   };
-
-  const isShiftOnDate = (shift, date) => shift.date === toISODate(date);
 
   const shiftsInRange = (from, to) => {
     const f = toISODate(from);
@@ -192,7 +185,6 @@
   };
 
   const computeStreak = () => {
-    // Consecutive days with shifts ending today or yesterday
     if (!state.shifts.length) return 0;
     const dates = [...new Set(state.shifts.map(s => s.date))].sort().reverse();
     const today = new Date(); today.setHours(0,0,0,0);
@@ -225,7 +217,6 @@
   const renderHome = () => {
     $('#greeting').textContent = getGreeting();
 
-    // Status card
     const card = $('#statusCard');
     const badge = $('#statusText');
     const body = $('#statusBody');
@@ -256,7 +247,6 @@
       stopLiveTimer();
     }
 
-    // Quick stats
     const now = new Date();
     const monthShifts = shiftsInRange(startOfMonth(now), endOfMonth(now));
     const monthMinutes = sumDuration(monthShifts);
@@ -266,7 +256,6 @@
     $('#qsAvg').textContent = monthShifts.length ? formatDuration(Math.round(monthMinutes / monthShifts.length)) : '—';
     $('#qsTotal').textContent = state.shifts.length;
 
-    // Month card
     $('#monthName').textContent = `${MONTHS_RU[now.getMonth()].toUpperCase()} ${now.getFullYear()}`;
     $('#monthShifts').textContent = monthShifts.length;
     $('#monthHours').textContent = formatHoursLabel(monthMinutes);
@@ -280,7 +269,6 @@
     $('#progressText').textContent = `${Math.floor(monthMinutes / 60)} / ${target} часов`;
     $('#progressPercent').textContent = `${percent.toFixed(0)}%`;
 
-    // Last shift
     const last = getLastShift();
     const wrap = $('#lastShiftWrap');
     if (!last) {
@@ -295,7 +283,6 @@
       bindShiftCardActions(wrap);
     }
 
-    // Streak
     const streak = computeStreak();
     $('#streakValue').textContent = streak > 0 ? `${streak} ${pluralize(streak, 'смена', 'смены', 'смен')} подряд` : 'Нет активной серии';
     $('#streakLabel').textContent = streak > 0 ? 'Отличный темп!' : 'Начни смену, чтобы продолжить';
@@ -581,29 +568,55 @@
   };
 
   // ---------- MODAL ----------
+  let modalHandlers = null;
+
   const openModal = ({ title, text, confirmText = 'Удалить', cancelText = 'Отмена', onConfirm }) => {
     const backdrop = $('#modalBackdrop');
-    $('#modalTitle').textContent = title;
-    $('#modalText').textContent = text;
     const cancelBtn = $('#modalCancel');
     const confirmBtn = $('#modalConfirm');
+
+    // Снимаем предыдущие обработчики, если остались
+    if (modalHandlers) {
+      cancelBtn.removeEventListener('click', modalHandlers.onCancel);
+      confirmBtn.removeEventListener('click', modalHandlers.onConfirm);
+      backdrop.removeEventListener('click', modalHandlers.onBackdrop);
+      document.removeEventListener('keydown', modalHandlers.onEsc);
+      modalHandlers = null;
+    }
+
+    $('#modalTitle').textContent = title;
+    $('#modalText').textContent = text;
     cancelBtn.textContent = cancelText;
     confirmBtn.textContent = confirmText;
-    backdrop.hidden = false;
 
     const close = () => {
       backdrop.hidden = true;
-      cancelBtn.removeEventListener('click', onCancel);
-      confirmBtn.removeEventListener('click', onConfirmHandler);
-      backdrop.removeEventListener('click', onBackdrop);
+      if (modalHandlers) {
+        cancelBtn.removeEventListener('click', modalHandlers.onCancel);
+        confirmBtn.removeEventListener('click', modalHandlers.onConfirm);
+        backdrop.removeEventListener('click', modalHandlers.onBackdrop);
+        document.removeEventListener('keydown', modalHandlers.onEsc);
+        modalHandlers = null;
+      }
     };
-    const onCancel = () => close();
-    const onConfirmHandler = () => { close(); onConfirm && onConfirm(); };
+
+    const onCancel = (e) => { e.preventDefault(); close(); };
+    const onConfirm = (e) => {
+      e.preventDefault();
+      close();
+      try { onConfirm && onConfirm(); } catch (err) { console.error(err); }
+    };
     const onBackdrop = (e) => { if (e.target === backdrop) close(); };
+    const onEsc = (e) => { if (e.key === 'Escape') close(); };
+
+    modalHandlers = { onCancel, onConfirm, onBackdrop, onEsc };
 
     cancelBtn.addEventListener('click', onCancel);
-    confirmBtn.addEventListener('click', onConfirmHandler);
+    confirmBtn.addEventListener('click', onConfirm);
     backdrop.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onEsc);
+
+    backdrop.hidden = false;
   };
 
   // ---------- TOAST ----------
@@ -694,7 +707,6 @@
         values.push(+(perMonth[i] / 60).toFixed(2));
       });
     } else {
-      // Per day within range
       const cursor = new Date(from);
       cursor.setHours(0, 0, 0, 0);
       const end = new Date(to);
@@ -761,7 +773,6 @@
     if (!canvas || typeof Chart === 'undefined') return;
     const col = chartColors();
 
-    // Last 12 months
     const now = new Date();
     const months = [];
     for (let i = 11; i >= 0; i--) {
@@ -978,7 +989,6 @@
       renderAll();
     });
 
-    // Export / Import
     $('#exportJson').addEventListener('click', exportJSON);
     $('#exportCsv').addEventListener('click', exportCSV);
     $('#importFile').addEventListener('change', handleImport);
@@ -999,7 +1009,6 @@
       });
     });
 
-    // Listen to system theme changes
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
       if (state.settings.theme === 'system') {
         applySettings();
@@ -1116,10 +1125,6 @@
     };
   };
 
-  // ---------- CALENDAR (embedded in stats — simplified) ----------
-  // Calendar is intentionally shown as chart per-day distribution.
-  // A full interactive calendar view is provided through the history filter.
-
   // ---------- NAVIGATION ----------
   const switchTab = (tab) => {
     state.currentTab = tab;
@@ -1133,7 +1138,6 @@
     else if (tab === 'stats') renderStats();
     else if (tab === 'history') renderHistory();
     else if (tab === 'add') {
-      // focus first field for quick entry
       setTimeout(() => { const el = $('#fStart'); if (el && !el.value) el.focus(); }, 50);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1200,6 +1204,12 @@
 
   // ---------- INIT ----------
   const init = () => {
+    // ⬇️ Явно скрываем модалку и тост при старте
+    const backdrop = $('#modalBackdrop');
+    const toast = $('#toast');
+    if (backdrop) backdrop.hidden = true;
+    if (toast) toast.hidden = true;
+
     Storage.load();
     applySettings();
     setupNav();
@@ -1211,7 +1221,6 @@
     renderAll();
     registerSW();
 
-    // Handle midnight rollover to update "today" cards
     setInterval(() => {
       if (state.currentTab === 'home') renderHome();
     }, 60 * 1000);
