@@ -71,6 +71,12 @@ input:focus, select:focus, button:focus-visible {
   outline-offset: 2px;
 }
 
+/* ═══════════ ГЛОБАЛЬНОЕ ИСПРАВЛЕНИЕ [hidden] ═══════════ */
+/* Скрывает любые элементы с атрибутом hidden, даже если у них display: grid/flex */
+[hidden] {
+  display: none !important;
+}
+
 #app {
   display: flex;
   min-height: 100vh;
@@ -139,7 +145,6 @@ input:focus, select:focus, button:focus-visible {
   overflow-x: hidden;
 }
 .tab { animation: fadeUp .35s cubic-bezier(.2,.8,.2,1); }
-.tab[hidden] { display: none; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -745,6 +750,12 @@ input[type="date"], input[type="time"] {
   padding: 20px;
   animation: fadeIn .2s;
 }
+
+/* ⬇️ КРИТИЧНО: скрывает модалку, когда она должна быть скрыта */
+.modal-backdrop[hidden] {
+  display: none !important;
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal {
   background: var(--card);
@@ -785,6 +796,12 @@ input[type="date"], input[type="time"] {
   max-width: 90vw;
   text-align: center;
 }
+
+/* ⬇️ КРИТИЧНО: скрывает тост, когда он должен быть скрыт */
+.toast[hidden] {
+  display: none !important;
+}
+
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ============ RESPONSIVE ============ */
