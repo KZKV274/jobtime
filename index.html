@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0B0D10" />
+  <meta name="description" content="ShiftPulse — персональный журнал рабочих смен" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ShiftPulse" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <title>ShiftPulse</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Desktop sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+            <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="url(#g1)"/>
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#8B5CF6"/>
+              <stop offset="1" stop-color="#6366F1"/>
+            </linearGradient></defs>
+          </svg>
+        </div>
+        <span class="brand-name">ShiftPulse</span>
+      </div>
+      <nav class="side-nav">
+        <button class="nav-btn" data-tab="home">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2h-4v-6h-6v6H5a2 2 0 01-2-2V10z"/></svg>
+          <span>Главная</span>
+        </button>
+        <button class="nav-btn" data-tab="add">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Новая смена</span>
+        </button>
+        <button class="nav-btn" data-tab="stats">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+          <span>Статистика</span>
+        </button>
+        <button class="nav-btn" data-tab="history">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+          <span>История</span>
+        </button>
+      </nav>
+      <button class="nav-btn settings-btn" data-tab="settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5h0a1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        <span>Настройки</span>
+      </button>
+    </aside>
+
+    <main class="content" id="content">
+      <!-- HOME -->
+      <section class="tab" data-tab="home">
+        <header class="page-head">
+          <div>
+            <p class="greeting" id="greeting">Добрый день</p>
+            <h1 class="page-title">Твой рабочий журнал</h1>
+          </div>
+          <button class="icon-btn" id="themeQuickToggle" title="Тема">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+          </button>
+        </header>
+
+        <!-- CURRENT STATUS -->
+        <div class="status-card" id="statusCard">
+          <div class="status-glow"></div>
+          <div class="status-inner">
+            <div class="status-badge" id="statusBadge">
+              <span class="pulse-dot"></span>
+              <span id="statusText">Загрузка...</span>
+            </div>
+            <div id="statusBody"></div>
+          </div>
+        </div>
+
+        <!-- QUICK STATS -->
+        <div class="section-head">
+          <h2>Быстрая статистика</h2>
+        </div>
+        <div class="stats-grid" id="quickStats">
+          <div class="stat-card">
+            <span class="stat-label">Смен в этом месяце</span>
+            <span class="stat-value" id="qsShifts">—</span>
+            <span class="stat-sub">смен</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Часов в этом месяце</span>
+            <span class="stat-value" id="qsHours">—</span>
+            <span class="stat-sub">часов</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Средняя смена</span>
+            <span class="stat-value" id="qsAvg">—</span>
+            <span class="stat-sub">в среднем</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Всего смен</span>
+            <span class="stat-value" id="qsTotal">—</span>
+            <span class="stat-sub">за всё время</span>
+          </div>
+        </div>
+
+        <!-- MONTH PROGRESS CARD -->
+        <div class="month-card" id="monthCard">
+          <div class="month-head">
+            <div>
+              <p class="month-label">Текущий месяц</p>
+              <h3 class="month-name" id="monthName">СЕНТЯБРЬ 2026</h3>
+            </div>
+            <div class="month-shifts" id="monthShifts">0</div>
+          </div>
+          <div class="month-hours" id="monthHours">0ч 00м</div>
+          <div class="month-row">
+            <div>
+              <p class="mini-label">Средняя смена</p>
+              <p class="mini-value" id="monthAvg">—</p>
+            </div>
+            <div>
+              <p class="mini-label">Цель</p>
+              <p class="mini-value" id="monthTarget">176ч</p>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="monthProgress"></div></div>
+            <div class="progress-meta">
+              <span id="progressText">0 / 176 часов</span>
+              <span id="progressPercent">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAST SHIFT -->
+        <div class="section-head">
+          <h2>Последняя смена</h2>
+        </div>
+        <div id="lastShiftWrap"></div>
+
+        <!-- STREAK -->
+        <div class="section-head">
+          <h2>Активность</h2>
+        </div>
+        <div class="streak-card" id="streakCard">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-body">
+            <p class="streak-value" id="streakValue">—</p>
+            <p class="streak-label" id="streakLabel">Серия рабочих дней</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD SHIFT -->
+      <section class="tab" data-tab="add" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Новая смена</h1>
+        </header>
+        <form class="form-card" id="shiftForm" novalidate>
+          <input type="hidden" id="editId" value="" />
+          <label class="field">
+            <span class="field-label">Дата</span>
+            <input type="date" id="fDate" required />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Начало</span>
+              <input type="time" id="fStart" required />
+            </label>
+            <label class="field">
+              <span class="field-label">Окончание</span>
+              <input type="time" id="fEnd" required />
+            </label>
+          </div>
+          <label class="field">
+            <span class="field-label">Перерыв</span>
+            <input type="time" id="fBreak" value="00:00" />
+          </label>
+          <label class="field">
+            <span class="field-label">Комментарий <em>(необязательно)</em></span>
+            <input type="text" id="fComment" placeholder="Например, дневная смена" maxlength="120" />
+          </label>
+          <div class="duration-preview">
+            <span>Продолжительность</span>
+            <strong id="durationPreview">0ч 00м</strong>
+          </div>
+          <div class="form-error" id="formError" hidden></div>
+          <button type="submit" class="btn-primary" id="saveShiftBtn">
+            <span>Сохранить смену</span>
+          </button>
+          <button type="button" class="btn-ghost" id="cancelEditBtn" hidden>Отмена редактирования</button>
+        </form>
+      </section>
+
+      <!-- STATS -->
+      <section class="tab" data-tab="stats" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Статистика</h1>
+        </header>
+        <div class="segmented" id="statsPeriod">
+          <button data-period="week">Неделя</button>
+          <button data-period="month" class="active">Месяц</button>
+          <button data-period="year">Год</button>
+        </div>
+
+        <div class="stats-grid stats-grid-lg" id="statsMain">
+          <div class="stat-card big">
+            <span class="stat-label">Смен</span>
+            <span class="stat-value" id="stShifts">0</span>
+          </div>
+          <div class="stat-card big">
+            <span class="stat-label">Рабочих часов</span>
+            <span class="stat-value" id="stHours">0ч</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Средняя смена</span>
+            <span class="stat-value sm" id="stAvg">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Самая длинная</span>
+            <span class="stat-value sm" id="stMax">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Самая короткая</span>
+            <span class="stat-value sm" id="stMin">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Средн. в неделю</span>
+            <span class="stat-value sm" id="stWeekAvg">—</span>
+          </div>
+        </div>
+
+        <div class="section-head"><h2>График рабочего времени</h2></div>
+        <div class="chart-card"><canvas id="hoursChart"></canvas></div>
+
+        <div class="section-head"><h2>По месяцам</h2></div>
+        <div class="chart-card"><canvas id="monthsChart"></canvas></div>
+        <div class="months-list" id="monthsList"></div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="tab" data-tab="history" hidden>
+        <header class="page-head">
+          <h1 class="page-title">История смен</h1>
+        </header>
+        <div class="filter-row">
+          <select id="historyFilter" class="select">
+            <option value="month" selected>Этот месяц</option>
+            <option value="today">Сегодня</option>
+            <option value="week">Эта неделя</option>
+            <option value="prevMonth">Прошлый месяц</option>
+            <option value="year">Этот год</option>
+            <option value="all">Всё время</option>
+            <option value="custom">Произвольный период</option>
+          </select>
+        </div>
+        <div class="custom-range" id="customRange" hidden>
+          <input type="date" id="rangeFrom" class="input" />
+          <input type="date" id="rangeTo" class="input" />
+        </div>
+        <div class="history-summary" id="historySummary"></div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="tab" data-tab="settings" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Настройки</h1>
+        </header>
+        <div class="settings-card">
+          <label class="field">
+            <span class="field-label">Название приложения</span>
+            <input type="text" id="sAppName" class="input" maxlength="30" />
+          </label>
+          <label class="field">
+            <span class="field-label">Цель часов в месяц</span>
+            <input type="number" id="sTarget" class="input" min="0" max="400" />
+          </label>
+          <label class="field">
+            <span class="field-label">Первый день недели</span>
+            <select id="sWeekStart" class="select">
+              <option value="1">Понедельник</option>
+              <option value="0">Воскресенье</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Формат времени</span>
+            <select id="sTimeFormat" class="select">
+              <option value="24">24 часа</option>
+              <option value="12">12 часов</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Тема</span>
+            <select id="sTheme" class="select">
+              <option value="system">Системная</option>
+              <option value="dark">Тёмная</option>
+              <option value="light">Светлая</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="settings-card">
+          <h3 class="settings-title">Данные</h3>
+          <div class="settings-actions">
+            <button class="btn-ghost" id="exportJson">Экспорт JSON</button>
+            <button class="btn-ghost" id="exportCsv">Экспорт CSV</button>
+            <label class="btn-ghost" for="importFile">Импорт JSON</label>
+            <input type="file" id="importFile" accept=".json,application/json" hidden />
+            <button class="btn-danger" id="wipeData">Удалить все данные</button>
+          </div>
+        </div>
+
+        <p class="version">ShiftPulse · v1.0</p>
+      </section>
+    </main>
+
+    <!-- Bottom nav (mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-btn" data-tab="home">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2h-4v-6h-6v6H5a2 2 0 01-2-2V10z"/></svg>
+        <span>Главная</span>
+      </button>
+      <button class="nav-btn" data-tab="add">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Смена</span>
+      </button>
+      <button class="nav-btn" data-tab="stats">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Статистика</span>
+      </button>
+      <button class="nav-btn" data-tab="history">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+        <span>История</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" id="modal">
+      <h3 class="modal-title" id="modalTitle">Подтверждение</h3>
+      <p class="modal-text" id="modalText"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modalCancel">Отмена</button>
+        <button class="btn-danger" id="modalConfirm">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
